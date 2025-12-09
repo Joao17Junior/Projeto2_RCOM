@@ -1,1 +1,2 @@
-# Projeto2_RCOM
+# RCOM Lab 2 - Computer Networks
+
