@@ -25,7 +25,7 @@ all: $(TEST_DIR) $(TARGET)
 
 # Create test directory if it doesn't exist
 $(TEST_DIR):
-	@if not exist "$(TEST_DIR)" mkdir "$(TEST_DIR)"
+	@mkdir -p $(TEST_DIR)
 	@echo "✓ Test directory ready: $(TEST_DIR)"
 
 # Build the download application
@@ -37,7 +37,7 @@ $(TARGET): $(SOURCES) $(INCLUDES)
 # Run targets (tests only)
 # ===============================================
 .PHONY: run
-run: $(TARGET)
+run: $(TARGET) $(TEST_DIR)
 	@echo "Running download application..."
 	./$(TARGET) ftp://demo:password@test.rebex.net/readme.txt
 
@@ -47,6 +47,7 @@ run: $(TARGET)
 .PHONY: clean
 clean:
 	rm -f $(TARGET)
+	rm -rf $(TEST_DIR)
 	@echo "✓ Cleaned build files"
 
 # ===============================================
