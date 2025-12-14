@@ -39,7 +39,7 @@ $(TARGET): $(SOURCES) $(INCLUDES)
 .PHONY: run
 run: $(TARGET)
 	@echo "Running download application..."
-	./$(TARGET) ftp://ftp.up.pt/pub/archlinux/archive/iso/arch-0.8-base-i686.iso
+	./$(TARGET) ftp://demo:password@test.rebex.net/readme.txt
 
 # ===============================================
 # Clean targets

@@ -23,6 +23,7 @@
 #define SV_READY_FOR_PASS       331
 #define SV_LOGIN_SUCCESS        230
 #define SV_PASSIVE_MODE         227
+#define SV_CONN_ALREADY_OPEN    125
 #define SV_READY_FOR_TRANSFER   150
 #define SV_TRANSFER_COMPLETE    226
 #define SV_GOODBYE              221
@@ -154,9 +155,8 @@ int ftpDownloadFile(const int control_socket, const int data_socket, const char 
 /**
  * Fecha a conexão FTP
  * @param control_socket Socket de controlo
- * @param data_socket Socket de dados
  * @return 0 se sucesso, -1 se erro
  */
-int ftpQuit(const int control_socket, const int data_socket);
+int ftpQuit(const int control_socket);
 
-#endif // DOWNLOAD_H
+#endif// DOWNLOAD_H

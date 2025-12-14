@@ -95,8 +95,10 @@ int createSocket(const char *ip, int port) {
  */
 int readResponse(const int socket, char *buffer) {
     char byte;
-    int index = 0, responseCode;
+    int index = 0, responseCode = 0;
     ResponseState state = START;
+    char code[4] = {0};  // Para armazenar os 3 dígitos do código
+    int codeIndex = 0;
     
     memset(buffer, 0, MAX_LENGTH);
     
@@ -107,14 +109,15 @@ int readResponse(const int socket, char *buffer) {
         
         switch (state) {
             case START:
-                if (byte == ' ') {
+                if (codeIndex < 3 && byte >= '0' && byte <= '9') {
+                    // Ler os primeiros 3 dígitos do código
+                    code[codeIndex++] = byte;
+                } else if (byte == ' ') {
                     state = SINGLE;  // Resposta de linha única
                 } else if (byte == '-') {
                     state = MULTIPLE;  // Resposta multi-linha
                 } else if (byte == '\n') {
                     state = END;
-                } else {
-                    buffer[index++] = byte;
                 }
                 break;
                 
@@ -129,12 +132,30 @@ int readResponse(const int socket, char *buffer) {
             case MULTIPLE:
                 if (byte == '\n') {
                     // Nova linha em resposta multi-linha
-                    // Limpar buffer e recomeçar
-                    memset(buffer, 0, MAX_LENGTH);
-                    state = START;
-                    index = 0;
+                    // Verificar se a próxima linha começa com o código seguido de espaço
+                    char nextCode[4] = {0};
+                    int tempIndex = 0;
+                    char tempByte;
+                    
+                    // Ler próximos 3 caracteres
+                    for (int i = 0; i < 3; i++) {
+                        if (read(socket, &tempByte, 1) > 0) {
+                            nextCode[tempIndex++] = tempByte;
+                        }
+                    }
+                    
+                    // Ler o 4º caractere (espaço ou hífen)
+                    if (read(socket, &tempByte, 1) > 0) {
+                        if (strcmp(code, nextCode) == 0 && tempByte == ' ') {
+                            // Fim da resposta multi-linha
+                            state = SINGLE;
+                        } else {
+                            // Continuar lendo a linha
+                            // (descartar o que foi lido)
+                        }
+                    }
                 } else {
-                    buffer[index++] = byte;
+                    // Ignorar o conteúdo da resposta multi-linha
                 }
                 break;
                 
@@ -146,8 +167,11 @@ int readResponse(const int socket, char *buffer) {
         }
     }
     
-    // Extrair código de resposta
-    sscanf(buffer, RESPCODE_REGEX, &responseCode);
+    // Converter código para inteiro
+    if (strlen(code) == 3) {
+        responseCode = atoi(code);
+    }
+    
     printf("< %d %s\n", responseCode, buffer);
     
     return responseCode;
@@ -293,6 +317,7 @@ int ftpDownloadFile(const int control_socket, const int data_socket, const char 
     
     printf("\n");
     fclose(file);
+    close(data_socket);  // Fechar socket de dados antes de ler resposta final
     
     // Ler resposta final do servidor
     char response[MAX_LENGTH];
@@ -306,7 +331,7 @@ int ftpDownloadFile(const int control_socket, const int data_socket, const char 
 /**
  * Fecha conexão FTP
  */
-int ftpQuit(const int control_socket, const int data_socket) {
+int ftpQuit(const int control_socket) {
     char buffer[MAX_LENGTH];
     
     if (sendCommand(control_socket, "QUIT", NULL) < 0) {
@@ -319,9 +344,6 @@ int ftpQuit(const int control_socket, const int data_socket) {
     }
     
     close(control_socket);
-    if (data_socket >= 0) {
-        close(data_socket);
-    }
     
     return (code == SV_GOODBYE) ? 0 : -1;
 }
@@ -409,7 +431,7 @@ int main(int argc, char *argv[]) {
     // 7. Requisitar ficheiro
     printf("7. A requisitar ficheiro '%s'...\n", url.resource);
     code = ftpRequestFile(control_socket, url.resource);
-    if (code != SV_READY_FOR_TRANSFER) {
+    if (code != SV_READY_FOR_TRANSFER && code != SV_CONN_ALREADY_OPEN) {
         fprintf(stderr, "Erro ao requisitar ficheiro (código %d)\n", code);
         close(control_socket);
         close(data_socket);
@@ -427,7 +449,7 @@ int main(int argc, char *argv[]) {
     
     // 9. Fechar conexão
     printf("\n9. A fechar conexão...\n");
-    ftpQuit(control_socket, data_socket);
+    ftpQuit(control_socket);
     
     printf("\n=== Download concluído com sucesso! ===\n");
     
