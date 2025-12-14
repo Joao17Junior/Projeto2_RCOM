@@ -354,7 +354,7 @@ int ftpQuit(const int control_socket) {
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Uso: %s ftp://[<user>:<password>@]<host>/<url-path>\n", argv[0]);
-        fprintf(stderr, "Exemplo: %s ftp://ftp.netlab.fe.up.pt/pub/README\n", argv[0]);
+        fprintf(stderr, "Exemplo: %s ftp://demo:password@test.rebex.net/readme.txt\n", argv[0]);
         return 1;
     }
     
