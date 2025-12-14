@@ -36,10 +36,20 @@ $(TARGET): $(SOURCES) $(INCLUDES)
 # ===============================================
 # Run targets (tests only)
 # ===============================================
-.PHONY: run
-run: $(TARGET) $(TEST_DIR)
-	@echo "Running download application..."
+.PHONY: run_1
+run_1: $(TARGET) $(TEST_DIR)
+	@echo "Running test 1: Arch Linux ISO..."
+	./$(TARGET) ftp://ftp.up.pt/pub/archlinux/archive/iso/arch-0.8-base-i686.iso
+
+.PHONY: run_2
+run_2: $(TARGET) $(TEST_DIR)
+	@echo "Running test 2: Rebex readme.txt..."
 	./$(TARGET) ftp://demo:password@test.rebex.net/readme.txt
+
+.PHONY: run_3
+run_3: $(TARGET) $(TEST_DIR)
+	@echo "Running test 3: 100MB speed test..."
+	./$(TARGET) ftp://anonymous:anonymous@ftp.bit.nl/speedtest/100mb.bin
 
 # ===============================================
 # Clean targets
@@ -56,7 +66,9 @@ clean:
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  make all         - Build the download application"
-	@echo "  make run         - Run with default test URL"
-	@echo "  make clean       - Remove compiled files"
-	@echo "  make help        - Show this help message"
+	@echo "  make all       - Build the download application"
+	@echo "  make run_1     - Test 1: Arch Linux ISO"
+	@echo "  make run_2     - Test 2: Rebex readme.txt"
+	@echo "  make run_3     - Test 3: 100MB speed test"
+	@echo "  make clean     - Remove compiled files"
+	@echo "  make help      - Show this help message"
