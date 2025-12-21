@@ -66,9 +66,10 @@ clean:
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  make all       - Build the download application"
-	@echo "  make run_1     - Test 1: Arch Linux ISO"
-	@echo "  make run_2     - Test 2: Rebex readme.txt"
-	@echo "  make run_3     - Test 3: 100MB speed test"
-	@echo "  make clean     - Remove compiled files"
-	@echo "  make help      - Show this help message"
+	@echo "  make all          - Build the download application"
+	@echo "  make run_1        - Test 1: Arch Linux ISO"
+	@echo "  make run_2        - Test 2: Rebex readme.txt"
+	@echo "  make run_3        - Test 3: 100MB speed test"
+	@echo "  make clean        - Remove compiled files"
+	@echo "  make help         - Show this help message"
+	@echo "  ./download <URL>  - Run the application using a custom URL"
