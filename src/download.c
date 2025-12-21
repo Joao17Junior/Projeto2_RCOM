@@ -28,9 +28,23 @@ int parseURL(const char *input, URL *url) {
     }
     
     // Extrair resource e filename
-    sscanf(input, RESOURCE_REGEX, url->resource);
-    char *lastSlash = strrchr(input, '/');
-    if (lastSlash != NULL) {
+    // Encontrar o caminho após o host
+    const char *pathStart = strstr(input, "://");
+    if (pathStart != NULL) {
+        pathStart += 3;  // Pular "://"
+        pathStart = strchr(pathStart, '/');  // Encontrar primeira barra após host
+        if (pathStart != NULL) {
+            strcpy(url->resource, pathStart);  // Copiar o caminho completo (com a barra inicial)
+        } else {
+            strcpy(url->resource, "/");
+        }
+    } else {
+        strcpy(url->resource, "/");
+    }
+    
+    // Extrair nome do ficheiro
+    char *lastSlash = strrchr(url->resource, '/');
+    if (lastSlash != NULL && strlen(lastSlash) > 1) {
         strcpy(url->file, lastSlash + 1);
     } else {
         strcpy(url->file, "downloaded_file");
